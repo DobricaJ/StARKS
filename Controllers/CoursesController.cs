@@ -50,6 +50,11 @@ namespace StARKS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Code,Name,Description")] Course course)
         {
+            if (IsCourseCodeExist(course) == true)
+            {
+                ModelState.AddModelError("Code", "CourseCode already exists");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(course);
@@ -85,6 +90,11 @@ namespace StARKS.Controllers
             if (id != course.Id)
             {
                 return NotFound();
+            }
+
+            if (IsCourseCodeExist(course) == true)
+            {
+                ModelState.AddModelError("Code", "CourseCode already exists");
             }
 
             if (ModelState.IsValid)
@@ -142,6 +152,11 @@ namespace StARKS.Controllers
         private bool CourseExists(int id)
         {
             return _context.Course.Any(e => e.Id == id);
+        }
+
+        private bool IsCourseCodeExist(Course course)
+        {
+            return _context.Course.Any(x => x.Code == course.Code && x.Id != course.Id);
         }
     }
 }
