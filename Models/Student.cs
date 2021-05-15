@@ -1,5 +1,6 @@
 ﻿using StARKS.Enums;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace StARKS.Models
 {
@@ -17,6 +18,7 @@ namespace StARKS.Models
 
         public string State { get; set; }
 
+        [DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }
 
         public Gender Gender { get; set; }
