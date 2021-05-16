@@ -55,11 +55,11 @@
 
                 @foreach (var mark in student.Marks)
                 {
-                    <td>
-                        <div id="student" hidden value="@mark.StudentId"></div>
-                        <div id="course" hidden value="@mark.CourseCode"></div>
-                        <input id="mark" type="number" value="@mark.MarkValue" min="6" max="10">
-                    </td>
+            <td>
+                <div id="student" hidden value="@mark.StudentId"></div>
+                <div id="course" hidden value="@mark.CourseCode"></div>
+                <input id="mark" type="number" value="@mark.MarkValue" min="6" max="10" pattern="^[6,7,8,9,10]+$|^$">
+            </td>
                 }
             </tr>
         }
@@ -74,9 +74,20 @@
 
     $(document).ready(function () {
 
-        // Mark Processing
+        // Validate and trigger submit on Focus Out
         $("input#mark").focusout(function () {
 
+            if ($(this)[0].checkValidity()) {
+
+                $(this).submit();
+            } else {
+                alert('Out of range');
+            }
+        });
+
+        // Mark Processing
+        $("input#mark").submit(function () {
+           
             var studentId = $(this).siblings('#student').attr("value");
             var courseId = $(this).siblings('#course').attr("value");
             var mark = $(this).val();
