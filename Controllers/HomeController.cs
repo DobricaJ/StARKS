@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StARKS.Data;
+using StARKS.Factores;
 using StARKS.Models;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -10,60 +10,24 @@ namespace StARKS.Controllers
     public class HomeController : Controller
     {
         private readonly WebAppContext _context;
+        private readonly ViewModelFactory _viewModelFacotory;
 
-        public HomeController(WebAppContext context)
+        public HomeController(WebAppContext context, ViewModelFactory factory)
         {
             _context = context;
+            _viewModelFacotory = factory;
         }
 
+        [HttpGet]
         public IActionResult Index()
         {
-
-            var students = _context.Student;
-            var courses = _context.Course;
-            var marks = _context.Mark;
-
-            var studentList = students.Select(s => new StudentViewModel
-            {
-                StudentId = s.Id,
-                StudentFullName = s.FirstName + " " + s.LastName,
-
-            }).ToList();
-
-            foreach (var student in studentList)
-            {
-
-                List<Mark> markList = new List<Mark>();
-                foreach (var course in courses)
-                {
-                    Mark mark = (marks.FirstOrDefault(m => m.StudentId == student.StudentId && m.CourseCode == course.Code));
-                    markList.Add(new Mark
-                    {
-                        CourseCode = course.Code,
-                        StudentId = student.StudentId,
-                        MarkValue = mark != null ? mark.MarkValue : default
-                    });
-                }
-
-                student.Marks = markList;
-            }
-
-            var courseView = courses
-                .Select(c => new CourseViewModel
-                {
-                    Code = c.Code,
-                    Name = c.Name
-                });
-
-            return View(
-                new MainTableViewModel()
-                {
-                    Courses = courseView.ToList(),
-                    Students = studentList
-                }
-            );
+            return View
+                ( 
+                    _viewModelFacotory.CreateMainTableView() 
+                );
         }
 
+        // Create mark if don't exist, or edit if exist, of delete mark if the user submit empty MarkValue
         [HttpPost]
         public JsonResult MarkProcessing([Bind("CourseCode,StudentId,MarkValue")] Mark mark)
         {
@@ -92,6 +56,7 @@ namespace StARKS.Controllers
            _context.SaveChanges();
         }
 
+        //Edit or delete
         public void EditMark(Mark mark)
         {
             var markDb =  _context.Mark.FirstOrDefault(e => e.CourseCode == mark.CourseCode && e.StudentId == mark.StudentId);

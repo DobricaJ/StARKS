@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using StARKS.Data;
+using StARKS.Factores;
 
 namespace StARKS
 {
@@ -24,6 +25,8 @@ namespace StARKS
 
             services.AddDbContext<WebAppContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("WebAppContext")));
+
+            services.AddScoped<ViewModelFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
