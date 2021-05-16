@@ -8,8 +8,10 @@ namespace StARKS.Models
     public class Mark
     {
         public int Id { get; set; }
+
         [Required]
         public string CourseCode { get; set; }
+
         [Required]
         public int  StudentId { get; set; }
 

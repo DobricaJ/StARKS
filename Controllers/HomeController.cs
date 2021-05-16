@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using StARKS.Data;
 using StARKS.Models;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace StARKS.Controllers
 {
@@ -71,7 +69,7 @@ namespace StARKS.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (!MarkExists(mark))
+                if (!IsMarkExists(mark))
                 {
                      CreateMark(mark);
                 }
@@ -118,7 +116,7 @@ namespace StARKS.Controllers
             _context.SaveChanges();
         }
 
-        private bool MarkExists(Mark mark)
+        private bool IsMarkExists(Mark mark)
         {
             return _context.Mark.Any(e => e.CourseCode == mark.CourseCode && e.StudentId == mark.StudentId);
         }
