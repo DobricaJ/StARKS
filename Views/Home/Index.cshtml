@@ -6,8 +6,8 @@
 
 <label class="row">
     <div class="col-6">
-        <select class="col-5" id="filterStudents" name="students"></select>
-        <select class="col-5" id="filterCourses" name="courses">
+        <select class="col-5" id="filterStudents"></select>
+        <select class="col-5" id="filterCourses">
             <option></option>
             @{
                 foreach (var course in Model.Courses)
@@ -66,76 +66,81 @@
     </tbody>
 </table>
 
-    @section scripts {
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+@section scripts {
 
-        <script type="text/javascript">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script type="text/javascript">
 
-        $(document).ready(function () {
+    $(document).ready(function () {
 
-            $("input#mark").focusout(function () {
+        // Mark Processing
+        $("input#mark").focusout(function () {
 
-                var studentId = $(this).siblings('#student').attr("value");
-                var courseId = $(this).siblings('#course').attr("value");
-                var mark = $(this).val();
+            var studentId = $(this).siblings('#student').attr("value");
+            var courseId = $(this).siblings('#course').attr("value");
+            var mark = $(this).val();
 
-                $.ajax({
-                    type: "POST",
-                    url: '@Url.Action("MarkProcessing", "Home")',
-                    data: {
-                        "courseCode": courseId,
-                        "studentId": studentId,
-                        "markValue": mark
-                    },
-                    success: function(recData) { alert('Success'); },
-                    error: function() { alert('A error'); }
-                });
-
-             });
-
-
-            $('#filterStudents').select2({
-                    ajax: {
-                        url: '@Url.Action("FilterStudents")',
-                    data: {
-                        "searchTerm": function () {
-                            return $('.select2-search__field')[0].value
-                        }},
-                    },
-                    placeholder: "Filter students...",
-                    allowClear: true,
-                minimumInputLength: 1
-            });
-
-            $('#filterStudents').on('change', function (e) {
-                var id = $(e.currentTarget).val();
-                if (id != null) {
-                    $('tbody tr[id]').hide();
-                    $('tbody tr[id=' + id + ']').show();
-                } else {
-                    $('tbody tr[id]').show();
-                }
-            });
-
-            $('#filterCourses').select2({
-
-                    placeholder: "Filter courses...",
-                    allowClear: true,
-            });
-
-            $('#filterCourses').on('change', function (e) {
-                var id = $(this).children("option:selected").val();
-                if (id != null && id !="") {
-                    $('thead th[id]').hide();
-                    $('td:has(#course)').hide();
-                    $('thead th[id=' + id + ']').show();
-                    $('td:has(#course[value=' + id + '])').show();
-                } else {
-                    $('thead th[id]').show();
-                    $('td:has(#course)').show();
-                }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("MarkProcessing", "Home")',
+                data: {
+                    "courseCode": courseId,
+                    "studentId": studentId,
+                    "markValue": mark
+                },
+                success: function (recData) { alert('Successfully updated'); },
+                error: function() { alert('A error'); }
             });
         });
-        </script>
-    }
+
+        // Remote filltering, search students in the database
+        $('#filterStudents').select2({
+                ajax: {
+                    url: '@Url.Action("FilterStudents")',
+                data: {
+                    "searchTerm": function () {
+                        return $('.select2-search__field')[0].value
+                    }},
+                },
+                placeholder: "Filter students...",
+                allowClear: true,
+            minimumInputLength: 1
+        });
+
+        // Hide or show rows for student filltering
+        $('#filterStudents').on('change', function (e) {
+            var id = $(e.currentTarget).val();
+            if (id != null) {
+                $('tbody tr[id]').hide(); // hide all rows
+                $('tbody tr[id=' + id + ']').show(); // show selected row
+            } else {
+                $('tbody tr[id]').show();
+            }
+        });
+
+        // Selecting students from Model
+        $('#filterCourses').select2({
+                placeholder: "Filter courses...",
+                allowClear: true,
+        });
+
+        // Hide or show columns for filltering
+        $('#filterCourses').on('change', function (e) {
+
+            var id = $(this).children("option:selected").val();
+
+            if (id != null && id != "") {
+                $('thead th[id]').hide(); // hide all headers
+                $('td:has(#course)').hide(); // hide all row
+                $('thead th[id=' + id + ']').show(); // show only selected header
+                $('td:has(#course[value=' + id + '])').show(); //show column
+            } else {
+                $('thead th[id]').show();
+                $('td:has(#course)').show();
+            }
+        });
+
+    });
+    </script>
+}
