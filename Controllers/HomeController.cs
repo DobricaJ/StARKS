@@ -123,6 +123,23 @@ namespace StARKS.Controllers
             return _context.Mark.Any(e => e.CourseCode == mark.CourseCode && e.StudentId == mark.StudentId);
         }
 
+        [HttpGet]
+        public IActionResult FilterStudents(string searchTerm)
+        {
+           var students = _context.Student
+                .Where(s =>
+                s.FirstName.Contains(searchTerm) ||
+                s.LastName.Contains(searchTerm));
+
+            return Json(new
+            {
+                results = students.Select(s => new
+                {
+                    id = s.Id,
+                    text = s.FirstName + " " + s.LastName,
+                })
+            });
+        }
         public IActionResult Privacy()
         {
             return View();

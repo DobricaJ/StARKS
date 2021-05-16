@@ -6,8 +6,18 @@
 
 <label class="row">
     <div class="col-6">
-        <select class="col-5" id="filterStudents" multiple="multiple" name="students"></select>
-        <select class="col-5" id="filterCourses" multiple="multiple" name="courses"></select>
+        <select class="col-5" id="filterStudents" name="students"></select>
+        <select class="col-5" id="filterCourses" name="courses">
+            <option></option>
+            @{
+                foreach (var course in Model.Courses)
+                {
+                    <option value="@course.Code">
+                        @course.Name
+                    </option>
+                }
+            }
+        </select>
     </div>
     <div class="col-6 float-right">
         <div class="float-right">
@@ -24,7 +34,7 @@
             </th>
             @foreach (var course in Model.Courses)
             {
-                <th>
+                <th id="@course.Code">
                     <a class="align-middle" asp-controller="Courses" asp-action="Details" asp-route-id="@course.Code">
                         <b>@course.Name</b>
                     </a>
@@ -36,7 +46,7 @@
     <tbody>
         @foreach (var student in Model.Students)
         {
-            <tr>
+            <tr id="@student.StudentId">
                 <td>
                     <a asp-controller="Students" asp-action="Details" asp-route-id="@student.StudentId">
                         @student.StudentFullName
@@ -87,22 +97,44 @@
 
             $('#filterStudents').select2({
                     ajax: {
-                        url: '@Url.Action("ShipToAutoComplete")',
-                        dataType: 'json'
+                        url: '@Url.Action("FilterStudents")',
+                    data: {
+                        "searchTerm": function () {
+                            return $('.select2-search__field')[0].value
+                        }},
                     },
                     placeholder: "Filter students...",
                     allowClear: true,
-                    minimumInputLength: 1
+                minimumInputLength: 1
+            });
+
+            $('#filterStudents').on('change', function (e) {
+                var id = $(e.currentTarget).val();
+                if (id != null) {
+                    $('tbody tr[id]').hide();
+                    $('tbody tr[id=' + id + ']').show();
+                } else {
+                    $('tbody tr[id]').show();
+                }
             });
 
             $('#filterCourses').select2({
-                    ajax: {
-                        url: '@Url.Action("ShipToAutoComplete")',
-                        dataType: 'json'
-                    },
+
                     placeholder: "Filter courses...",
                     allowClear: true,
-                    minimumInputLength: 1
+            });
+
+            $('#filterCourses').on('change', function (e) {
+                var id = $(this).children("option:selected").val();
+                if (id != null && id !="") {
+                    $('thead th[id]').hide();
+                    $('td:has(#course)').hide();
+                    $('thead th[id=' + id + ']').show();
+                    $('td:has(#course[value=' + id + '])').show();
+                } else {
+                    $('thead th[id]').show();
+                    $('td:has(#course)').show();
+                }
             });
         });
         </script>
